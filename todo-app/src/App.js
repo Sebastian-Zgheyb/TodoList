@@ -21,23 +21,65 @@ function App() {
     if (savedCompletedTodo) setCompletedTodos(savedCompletedTodo);
   }, []);
 
-  const handleAddTodo = (title, description, priority) => {
-    const newTodoItem = { title, description, priority };
+  useEffect(() => {
+    const checkDueDates = () => {
+      const now = new Date().getTime();
+      
+      allTodos.forEach(todo => {
+        if (todo.dueDate) {
+          const dueTime = new Date(todo.dueDate).getTime();
+          const reminderTime = dueTime - 30 * 60 * 1000; 
+  
+          if (now >= reminderTime && now < dueTime) {
+            new Notification("Task Reminder", { 
+              body: `Your task '${todo.title}' is due soon!` 
+            });
+          }
+        }
+      });
+    };
+  
+    const interval = setInterval(checkDueDates, 60 * 1000); 
+  
+    return () => clearInterval(interval); 
+  }, [allTodos]);
+  
+
+  const scheduleReminder = (todo) => {
+    if (!("Notification" in window)) return;
+    Notification.requestPermission().then((permission) => {
+      if (permission !== "granted") return;
+  
+      const dueTime = new Date(todo.dueDate).getTime();
+      const reminderTime = dueTime - 30 * 60 * 1000; 
+      console.log(reminderTime)
+      console.log(Date.now())
+      if (reminderTime > Date.now()) {
+        localStorage.setItem(`reminder-${todo.title}`, reminderTime);
+      }
+    });
+  };
+  
+
+  const handleAddTodo = (title, description, priority, dueDate) => {
+    const newTodoItem = { title, description, priority, dueDate };
     const updatedTodos = [...allTodos, newTodoItem];
     setTodos(updatedTodos);
     localStorage.setItem('todolist', JSON.stringify(updatedTodos));
+  
+    scheduleReminder(newTodoItem);
   };
+  
 
   const handleDeleteTodo = (index) => {
     const originalIndex = allTodos.findIndex(todo => todo === filteredTodos[index]);
-    if (originalIndex === -1) return; // Safety check
+    if (originalIndex === -1) return;
   
     const updatedTodos = [...allTodos];
     updatedTodos.splice(originalIndex, 1);
     setTodos(updatedTodos);
     localStorage.setItem('todolist', JSON.stringify(updatedTodos));
   };
-  
 
   const handleDeleteCompletedTodo = (index) => {
     const updatedCompletedTodos = [...completedTodos];
@@ -53,7 +95,6 @@ function App() {
     setCurrentEdit(originalIndex);
     setCurrentEditedItem(item);
   };
-  
 
   const handleUpdateTodo = (updatedItem) => {
     const updatedTodos = [...allTodos];
@@ -63,7 +104,6 @@ function App() {
     setCurrentEditedItem(null);
     localStorage.setItem('todolist', JSON.stringify(updatedTodos));
   };
-  
 
   const handleComplete = (index) => {
     const originalIndex = allTodos.findIndex(todo => todo === filteredTodos[index]);
@@ -82,8 +122,6 @@ function App() {
     localStorage.setItem('completedTodos', JSON.stringify([...completedTodos, completedItem]));
   };
   
-  
-
   const filteredTodos = allTodos
     .filter(todo => todo.title.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => {
