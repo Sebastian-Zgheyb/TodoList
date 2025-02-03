@@ -7,6 +7,7 @@ const TodoItem = ({ item, index, onDelete, onComplete, onEdit }) => {
       <div>
         <h3>{item.title}</h3>
         <p>{item.description}</p>
+        <p><strong>Priority:</strong> {item.priority}</p>
       </div>
       <div>
         <AiOutlineDelete className="icon" onClick={() => onDelete(index)} title="Delete?" />

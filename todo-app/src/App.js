@@ -12,6 +12,7 @@ function App() {
   const [completedTodos, setCompletedTodos] = useState([]);
   const [currentEdit, setCurrentEdit] = useState(null);
   const [currentEditedItem, setCurrentEditedItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const savedTodo = JSON.parse(localStorage.getItem('todolist'));
@@ -20,8 +21,8 @@ function App() {
     if (savedCompletedTodo) setCompletedTodos(savedCompletedTodo);
   }, []);
 
-  const handleAddTodo = (title, description) => {
-    const newTodoItem = { title, description };
+  const handleAddTodo = (title, description, priority) => {
+    const newTodoItem = { title, description, priority };
     const updatedTodos = [...allTodos, newTodoItem];
     setTodos(updatedTodos);
     localStorage.setItem('todolist', JSON.stringify(updatedTodos));
@@ -65,17 +66,35 @@ function App() {
     localStorage.setItem('completedTodos', JSON.stringify([...completedTodos, completedItem]));
   };
 
+  const filteredTodos = allTodos
+    .filter(todo => todo.title.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => {
+      const priorityOrder = { Low: 1, Medium: 2, High: 3 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    });
+
+  const filteredCompletedTodos = completedTodos.filter(todo =>
+    todo.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="App">
       <h1>My Todos</h1>
       <ThemeToggle /> 
       <div className="todo-wrapper">
         <TodoInput onAddTodo={handleAddTodo} />
+        <input 
+          type="text" 
+          placeholder="Search todos..." 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          className="search-bar"
+        />
         <ButtonGroup isCompleteScreen={isCompleteScreen} setIsCompleteScreen={setIsCompleteScreen} />
         <div className="todo-list">
           {!isCompleteScreen ? (
             <TodoList
-              todos={allTodos}
+              todos={filteredTodos}
               onDelete={handleDeleteTodo}
               onComplete={handleComplete}
               onEdit={handleEdit}
@@ -84,7 +103,7 @@ function App() {
               onUpdateTodo={handleUpdateTodo}
             />
           ) : (
-            <CompletedList todos={completedTodos} onDelete={handleDeleteCompletedTodo} />
+            <CompletedList todos={filteredCompletedTodos} onDelete={handleDeleteCompletedTodo} />
           )}
         </div>
       </div>

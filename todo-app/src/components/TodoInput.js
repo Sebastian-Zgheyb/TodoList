@@ -3,12 +3,14 @@ import { useState } from 'react';
 const TodoInput = ({ onAddTodo }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("Medium"); // Default priority
 
   const handleAdd = () => {
     if (title && description) {
-      onAddTodo(title, description);
+      onAddTodo(title, description, priority);
       setTitle("");
       setDescription("");
+      setPriority("Medium"); // Reset to default
     }
   };
 
@@ -16,12 +18,31 @@ const TodoInput = ({ onAddTodo }) => {
     <div className="todo-input">
       <div className="todo-input-item">
         <label>Title</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" />
+        <input 
+          type="text" 
+          value={title} 
+          onChange={(e) => setTitle(e.target.value)} 
+          placeholder="Task title" 
+        />
       </div>
       <div className="todo-input-item">
         <label>Description</label>
-        <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Task description" />
+        <input 
+          type="text" 
+          value={description} 
+          onChange={(e) => setDescription(e.target.value)} 
+          placeholder="Task description" 
+        />
       </div>
+      <div className="todo-input-item">
+        <label>Priority</label>
+        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+      
       <button type="button" onClick={handleAdd} className="primaryButton">Add</button>
     </div>
   );
