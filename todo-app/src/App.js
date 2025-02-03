@@ -4,6 +4,7 @@ import TodoInput from './components/TodoInput';
 import TodoList from './components/TodoList';
 import CompletedList from './components/CompletedList';
 import ButtonGroup from './components/ButtonGroup';
+import ThemeToggle from "./components/ThemeToggle";
 
 function App() {
   const [isCompleteScreen, setIsCompleteScreen] = useState(false);
@@ -67,6 +68,7 @@ function App() {
   return (
     <div className="App">
       <h1>My Todos</h1>
+      <ThemeToggle /> 
       <div className="todo-wrapper">
         <TodoInput onAddTodo={handleAddTodo} />
         <ButtonGroup isCompleteScreen={isCompleteScreen} setIsCompleteScreen={setIsCompleteScreen} />
