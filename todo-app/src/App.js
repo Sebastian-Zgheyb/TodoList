@@ -29,11 +29,15 @@ function App() {
   };
 
   const handleDeleteTodo = (index) => {
+    const originalIndex = allTodos.findIndex(todo => todo === filteredTodos[index]);
+    if (originalIndex === -1) return; // Safety check
+  
     const updatedTodos = [...allTodos];
-    updatedTodos.splice(index, 1);
+    updatedTodos.splice(originalIndex, 1);
     setTodos(updatedTodos);
     localStorage.setItem('todolist', JSON.stringify(updatedTodos));
   };
+  
 
   const handleDeleteCompletedTodo = (index) => {
     const updatedCompletedTodos = [...completedTodos];
@@ -43,9 +47,13 @@ function App() {
   };
 
   const handleEdit = (index, item) => {
-    setCurrentEdit(index);
+    const originalIndex = allTodos.findIndex(todo => todo === filteredTodos[index]);
+    if (originalIndex === -1) return;
+  
+    setCurrentEdit(originalIndex);
     setCurrentEditedItem(item);
   };
+  
 
   const handleUpdateTodo = (updatedItem) => {
     const updatedTodos = [...allTodos];
@@ -55,16 +63,26 @@ function App() {
     setCurrentEditedItem(null);
     localStorage.setItem('todolist', JSON.stringify(updatedTodos));
   };
+  
 
   const handleComplete = (index) => {
+    const originalIndex = allTodos.findIndex(todo => todo === filteredTodos[index]);
+    if (originalIndex === -1) return;
+  
     const now = new Date();
     const completedOn = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()} at ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-    const completedItem = { ...allTodos[index], completedOn };
+    const completedItem = { ...allTodos[originalIndex], completedOn };
+  
+    const updatedTodos = allTodos.filter((_, i) => i !== originalIndex);
     
     setCompletedTodos([...completedTodos, completedItem]);
-    handleDeleteTodo(index);
+    setTodos(updatedTodos);
+  
+    localStorage.setItem('todolist', JSON.stringify(updatedTodos));
     localStorage.setItem('completedTodos', JSON.stringify([...completedTodos, completedItem]));
   };
+  
+  
 
   const filteredTodos = allTodos
     .filter(todo => todo.title.toLowerCase().includes(searchTerm.toLowerCase()))
